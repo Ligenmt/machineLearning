@@ -1,6 +1,6 @@
 from keras.datasets import mnist
 from keras.utils import np_utils
-
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -52,3 +52,14 @@ model.add(Dense(10, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 train_history = model.fit(x=x_train4d_normalize, y=y_train_onehot, validation_split=0.2, epochs=10, batch_size=300, verbose=2)
+
+def show_train_history(train_history, train, validation):
+    plt.plot(train_history.history[train])
+    plt.plot(train_history.history[validation])
+    plt.title('Train history')
+    plt.ylabel(train)
+    plt.xlabel('Epoch')
+    plt.legend(['train', 'validation'], loc='upper left')
+    plt.show()
+
+show_train_history(train_history, 'acc', 'val_acc')
