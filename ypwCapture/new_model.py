@@ -73,21 +73,24 @@ model.compile(loss='categorical_crossentropy', optimizer='adadelta', metrics=['a
 # plot_model(model, to_file="model.png", show_shapes=True)
 # Image('model.png')
 
-X_train, y_train = next(gen(5000))
-print(X_train.shape)
-print(y_train[0].shape)
-# model.fit_generator(gen(), steps_per_epoch=32, epochs=5,
-#                     workers=2, pickle_safe=True,
-#                     validation_data=gen(), validation_steps=1280)
-
 try:
     model.load_weights('capture_model.h5')
     print('加载模型成功，继续训练模型')
 except:
     print('加载模型失败，重新训练新模型')
 
+
+# X_train, y_train = next(gen(51200))
+# print(X_train.shape)
+# print(y_train[0].shape)
+# model.fit_generator(gen(), steps_per_epoch=32, epochs=5,
+#                     workers=2, pickle_safe=True,
+#                     validation_data=gen(), validation_steps=1280)
+
 print('start')
-train_history = model.fit(x=X_train, y=y_train, validation_split=0.2, epochs=10, batch_size=100, verbose=2)
+# train_history = model.fit(x=X_train, y=y_train, validation_split=0.2, epochs=10, batch_size=512, verbose=2)
+model.fit_generator(generator=gen(), steps_per_epoch=5120, epochs=5, workers=1, validation_data=gen(), validation_steps=128)
+
 for i in range(10):
     X, y = next(gen(1))
     y_pred = model.predict(X)
