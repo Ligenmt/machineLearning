@@ -36,12 +36,14 @@ def gen(batch_size=1):
 def decode(y):
     y = np.argmax(np.array(y), axis=2)[:,0]
     return ''.join([characters[x] for x in y])
+# for i in range(10000):
+#     X, y = next(gen(1))
+#     print(decode(y))
+
 
 X, y = next(gen(1))
 print(X.shape)
 print(y[0].shape)
-ny = np.array(y)
-print(ny.shape)
 # plt.imshow(X[0])
 # plt.title(decode(y))
 # plt.show()
@@ -56,7 +58,7 @@ from keras.layers import *
 
 input_tensor = Input((height, width, 3))
 x = input_tensor
-for i in range(4):
+for i in range(3):
     x = Conv2D(32*2**i, (3, 3), activation='relu')(x)
     x = Conv2D(32*2**i, (3, 3), activation='relu')(x)
     x = MaxPooling2D((2, 2))(x)
@@ -89,7 +91,7 @@ except:
 
 print('start')
 # train_history = model.fit(x=X_train, y=y_train, validation_split=0.2, epochs=10, batch_size=512, verbose=2)
-model.fit_generator(generator=gen(), steps_per_epoch=5120, epochs=5, workers=1, validation_data=gen(), validation_steps=128)
+model.fit_generator(generator=gen(32), steps_per_epoch=3200, epochs=5, workers=1, validation_data=gen(32), validation_steps=32)
 
 for i in range(10):
     X, y = next(gen(1))
