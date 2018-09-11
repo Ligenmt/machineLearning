@@ -81,25 +81,33 @@ try:
 except:
     print('加载模型失败，重新训练新模型')
 
-
+print('start')
 # X_train, y_train = next(gen(51200))
 # print(X_train.shape)
 # print(y_train[0].shape)
 # model.fit_generator(gen(), steps_per_epoch=32, epochs=5,
 #                     workers=2, pickle_safe=True,
 #                     validation_data=gen(), validation_steps=1280)
-
-print('start')
 # train_history = model.fit(x=X_train, y=y_train, validation_split=0.2, epochs=10, batch_size=512, verbose=2)
-model.fit_generator(generator=gen(32), steps_per_epoch=3200, epochs=5, workers=1, validation_data=gen(32), validation_steps=32)
+# model.fit_generator(generator=gen(32), steps_per_epoch=6400, epochs=5, workers=1, validation_data=gen(32), validation_steps=32)
 
 for i in range(10):
     X, y = next(gen(1))
     y_pred = model.predict(X)
     print('real: %s\npred:%s'%(decode(y), decode(y_pred)))
-
-
 model.save('capture_model.h5')
-# plt.title('real: %s\npred:%s'%(decode(y), decode(y_pred)))
-# plt.imshow(X[0], cmap='gray')
-# plt.show()
+
+
+from tqdm import tqdm
+def evaluate(model, batch_num=20):
+    batch_acc = 0
+    generator = gen()
+    for i in tqdm(range(batch_num)):
+        X, y = next(generator)
+        y_pred = model.predict(X)
+        if decode(y) == decode(y_pred):
+            batch_acc += 1
+
+    return batch_acc / batch_num
+
+print(evaluate(model))
