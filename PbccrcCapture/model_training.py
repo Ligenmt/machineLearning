@@ -2,7 +2,7 @@ import json
 import numpy as np
 import random
 
-with open('data2.txt', 'r') as f:
+with open('data.txt', 'r') as f:
     json_str = f.read()
 
 data_list = json.loads(json_str)
@@ -63,9 +63,15 @@ except:
     print('加载模型失败，重新训练新模型')
 
 model.fit_generator(generator=gen(32), steps_per_epoch=1600, epochs=5, workers=1, validation_data=gen(32), validation_steps=32)
-for i in range(10):
+
+batch_acc = 0
+batch_num = 20
+for i in range(batch_num):
     X, y = next(gen(1))
     y_pred = model.predict(X)
     print('real: %s\npred:%s'%(decode(y), decode(y_pred)))
-
+    if decode(y) == decode(y_pred):
+        batch_acc += 1
+    else:
+        print('wrong: %s\npred:%s' % (decode(y), decode(y_pred)))
 model.save('pbccrc_captcha_model.h5')
