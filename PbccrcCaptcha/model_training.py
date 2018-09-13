@@ -2,7 +2,7 @@ import json
 import numpy as np
 import random
 
-with open('data.txt', 'r') as f:
+with open('E:\\reportcaptcha\\train_data3.txt', 'r') as f:
     json_str = f.read()
 
 data_list = json.loads(json_str)
@@ -12,7 +12,7 @@ characters = '3456789abcdefghijknpqrstuvxy'
 width, height, n_len, n_class = 100, 25, 6, len(characters)
 
 index = 0
-def gen(batch_size=32):
+def input_generator(batch_size=32):
     global index
     X = np.zeros((batch_size, height, width, 1), dtype=np.uint8)  # X 的形状是 (batch_size, height, width)
     y = [np.zeros((batch_size, n_class), dtype=np.uint8) for i in range(n_len)]  # y 的形状是6个 (batch_size, n_class)
@@ -33,7 +33,7 @@ def decode(y):
     y = np.argmax(np.array(y), axis=2)[:, 0]
     return ''.join([characters[x] for x in y])
 
-X, y = next(gen(32))
+X, y = next(input_generator(32))
 print(X.shape)
 print(y[0].shape)
 print(decode(y))
@@ -62,12 +62,12 @@ try:
 except:
     print('加载模型失败，重新训练新模型')
 
-model.fit_generator(generator=gen(32), steps_per_epoch=1600, epochs=5, workers=1, validation_data=gen(32), validation_steps=32)
+model.fit_generator(generator=input_generator(32), steps_per_epoch=3200, epochs=10, workers=1, validation_data=input_generator(32), validation_steps=32)
 
 batch_acc = 0
 batch_num = 20
 for i in range(batch_num):
-    X, y = next(gen(1))
+    X, y = next(input_generator(1))
     y_pred = model.predict(X)
     print('real: %s\npred:%s'%(decode(y), decode(y_pred)))
     if decode(y) == decode(y_pred):

@@ -41,13 +41,19 @@ model = Model(inputs=input_tensor, outputs=x)
 model.load_weights('pbccrc_captcha_model.h5')
 
 # 测试模型
-with open('data.txt', 'r') as f:
+with open('E:\\reportcaptcha\\train_data2.txt', 'r') as f:
     json_str = f.read()
 
 data_list = json.loads(json_str)
 random.shuffle(data_list)
 
-for i in range(20):
+test_acc = 0
+test_num = 20
+for i in range(test_num):
     X_verify, y_verify = next(gen(1))
     y_pred = model.predict(X_verify)
     print('real: %s pred:%s  %s' % (decode(y_verify), decode(y_pred), decode(y_verify) == decode(y_pred)))
+    if decode(y_verify) == decode(y_pred):
+        test_acc += 1
+
+print('try:%s  hit:%s' % (test_num, test_acc))
