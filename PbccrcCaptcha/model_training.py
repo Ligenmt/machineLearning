@@ -1,9 +1,10 @@
 import json
 import random
+import numpy as np
 
 #训练脚本，读取txt进行训练
 
-with open('E:\\reportcaptcha\\train_data3.txt', 'r') as f:
+with open('E:\\pbccrc\\data.txt', 'r') as f:
     json_str = f.read()
 
 data_list = json.loads(json_str)
