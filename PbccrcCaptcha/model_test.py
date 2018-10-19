@@ -2,6 +2,8 @@ from keras.models import *
 from keras.layers import *
 import random
 
+#测试模型，使用txt文件进行测试
+
 characters = '3456789abcdefghijknpqrstuvxy'
 width, height, n_len, n_class = 100, 25, 6, len(characters)
 

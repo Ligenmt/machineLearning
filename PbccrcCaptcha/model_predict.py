@@ -1,10 +1,11 @@
 from PbccrcCaptcha import pbccrc_captcha_model
 import os
 
+#测试模型，使用图片文件进行测试
 
 filedir = 'E:\\reportcaptcha\\samples\\'
 list = os.listdir(filedir)
-total = 1900
+total = len(list)
 right = 0
 for i in range(0, total):
     X = pbccrc_captcha_model.image_to_input(path='E:\\reportcaptcha\\samples\\' + list[i])

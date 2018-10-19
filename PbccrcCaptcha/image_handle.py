@@ -3,6 +3,8 @@ from PIL import Image
 import os
 
 
+# 工具类，批量将图片数值化，转化为data.txt
+
 # RGB 转换为灰度图、二值化图
 def image_to_gray():
     filedir = 'E:\\reportcaptcha\\train\\'

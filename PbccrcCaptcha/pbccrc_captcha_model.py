@@ -1,11 +1,11 @@
 from keras.models import *
 from keras.layers import *
-from PIL import Image
+
 import numpy as np
 import base64
 from io import BytesIO
 from PIL import Image
-
+# 训练好的模型，可用于预测 pbccrc_captcha_model.model.predict(X)
 
 characters = '3456789abcdefghijknpqrstuvxy'
 width, height, n_len, n_class = 100, 25, 6, len(characters)
