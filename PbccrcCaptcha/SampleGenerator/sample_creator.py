@@ -13,10 +13,10 @@ if not isExists:
     print('创建文件夹%s成功' % path)
 
 cr = CaptchaRecognizor()
-
+url = ''
 for i in range(10000):
     try:
-        res = requests.get('https://datahub.wecash.net/pbccrc/v2/init/1/1')
+        res = requests.get(url)
         body = res.json()
         img_base64 = body['data']['captcha']
         img_base64 = img_base64.replace('data:image/gif;base64,', '')
