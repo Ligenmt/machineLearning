@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from keras.utils import np_utils
+from keras.src.utils import np_utils
 from keras.datasets import mnist
 import matplotlib.pyplot as plt
 

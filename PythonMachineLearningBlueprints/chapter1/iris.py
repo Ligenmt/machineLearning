@@ -29,8 +29,8 @@ from sklearn.model_selection import train_test_split
 
 clf = RandomForestClassifier(max_depth=5, n_estimators=10)
 
-X = df.ix[:, :4]
-y = df.ix[:, 4]
+X = df.iloc[:, :4]
+y = df.iloc[:, 4]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.3)
 clf.fit(X_train, y_train)

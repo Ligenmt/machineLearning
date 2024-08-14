@@ -1,7 +1,26 @@
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
+import torch
+from torch.utils.data import DataLoader
+from torchvision import transforms
 
+
+class Net(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+        self.fc1 = torch.nn.Linear(8, 64)
+        self.fc2 = torch.nn.Linear(64, 64)
+        self.fc3 = torch.nn.Linear(64, 3)
+
+    def forward(self, x):
+        x = torch.nn.functional.relu(self.fc1(x))
+        x = torch.nn.functional.relu(self.fc2(x))
+        # softmax做归一化
+        # x = torch.nn.functional.log_softmax(self.fc4(x), dim=1)
+        # x = torch.nn.functional.softmax(self.fc3(x), dim=1)
+        x = self.fc3(x)
+        return x
 
 
 def mapminmax(X, ymin=-1, ymax=1):
@@ -75,13 +94,6 @@ n_train = round(nn * 0.8)
 n_valid = round(nn * 0.1)
 n_test = nn - n_train - n_valid
 
-# input_train = np.zeros((n_line, n_train))
-# output_train = np.zeros((3, n_train))
-# input_valid = np.zeros((n_line, n_valid))
-# output_valid = np.zeros((3, n_valid))
-# input_test = np.zeros((n_line, n_test))
-# output_test = np.zeros((3, n_test))
-
 input_train = input.iloc[:, :n_train]
 output_train = output.iloc[:, :n_train]
 
@@ -89,9 +101,11 @@ print(input_train.shape, output_train.shape)
 
 input_train_value = input_train.values
 output_train_value = output_train.values
-
 input_train_trans_value = input_train.transpose().values
 output_train_trans_value = output_train.transpose().values
+
+print(type(input_train_trans_value))
+print(input_train_trans_value.shape)
 
 # scaler1 = MinMaxScaler()
 # inputn = scaler1.fit_transform(input_train_value)
@@ -99,20 +113,69 @@ output_train_trans_value = output_train.transpose().values
 # scaler2 = MinMaxScaler()
 # inputn2 = scaler2.fit_transform(input_train_trans_value)
 
-inputn, min_vals, max_vals = mapminmax(input_train_trans_value)
+inputn, input_min_vals, input_max_vals = mapminmax(input_train_trans_value)
 print("Scaled inputn:")
 print(inputn)
 print("Original Min Values:")
-print(min_vals)
+print(input_min_vals)
 print("Original Max Values:")
-print(max_vals)
+print(input_max_vals)
 
-outputn, _, _ = mapminmax(output_train_trans_value)
+"""
+Scaled inputn:
+[[-1.0 -1.0 -1.0 ... -1.0 -1.0 -1.0]
+ [-1.0 -1.0 -1.0 ... -1.0 -1.0 -0.5]
+ [-1.0 -1.0 -1.0 ... -1.0 -1.0 2.220446049250313e-16]
+ ...
+ [1.0 -1.0 0.5 ... 1.0 1.0 2.220446049250313e-16]
+ [1.0 -1.0 0.5 ... 1.0 1.0 0.5]
+ [1.0 -1.0 0.5 ... 1.0 1.0 1.0]]
+Original Min Values:
+[30 20 30 60 2000 0.1 20000 0.1]
+Original Max Values:
+[90 65 90 140 10000 0.3 80000 0.3]
+"""
 
-hidden_layer_neures=40
+outputn, output_min_vals, output_max_vals = mapminmax(output_train_trans_value)
+print("Scaled outputn:")
+print(outputn)
+print("Original Min Values:")
+print(output_min_vals)
+print("Original Max Values:")
+print(output_max_vals)
+
+model = Net()
+criterion = torch.nn.MSELoss()  # 使用均方误差作为损失函数
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+# 训练数据示例
+# 假设有100个样本，每个样本有8个特征，标签有3个输出
+# train_data = torch.randn(100, 8)
+# train_labels = torch.randn(100, 3)
+
+print(type(inputn))
+print(inputn.shape)
+inputn = np.array([[np.float32(x) for x in subarr] for subarr in inputn], dtype=np.float32)
+outputn = np.array([[np.float32(x) for x in subarr] for subarr in outputn], dtype=np.float32)
+
+train_data = torch.tensor(inputn, dtype=torch.float32)
+train_labels = torch.tensor(outputn, dtype=torch.float32)
 
 
+num_epochs = 1000
+for epoch in range(num_epochs):
+    # 前向传播
+    outputs = model(train_data)
+    loss = criterion(outputs, train_labels)
+    # 反向传播和优化
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}')
+
+print("训练完成")
+torch.save(model.state_dict(), 'model_parameters1.pth')
+torch.save(model, 'model1.pth')
 
 
-print()
 
