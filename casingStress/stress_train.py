@@ -3,70 +3,22 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
+from casingStress import Net
+from casingStress.mapminmax import mapminmax
 
 
-class Net(torch.nn.Module):
-
-    def __init__(self):
-        super().__init__()
-        self.fc1 = torch.nn.Linear(8, 64)
-        self.fc2 = torch.nn.Linear(64, 64)
-        self.fc3 = torch.nn.Linear(64, 3)
-
-    def forward(self, x):
-        x = torch.nn.functional.relu(self.fc1(x))
-        x = torch.nn.functional.relu(self.fc2(x))
-        # softmax做归一化
-        # x = torch.nn.functional.log_softmax(self.fc4(x), dim=1)
-        # x = torch.nn.functional.softmax(self.fc3(x), dim=1)
-        x = self.fc3(x)
-        return x
-
-
-def mapminmax(X, ymin=-1, ymax=1):
-    """
-    将矩阵X的每个特征缩放到[ymin, ymax]范围内。
-
-    参数:
-    X -- 输入的numpy数组或矩阵
-    ymin -- 缩放后的最小值，默认为-1
-    ymax -- 缩放后的最大值，默认为1
-
-    返回:
-    X_scaled -- 缩放后的numpy数组
-    min_vals -- 原始数据中的最小值
-    max_vals -- 原始数据中的最大值
-    """
-    # 确保X是二维的，如果不是，则增加一个维度
-    if X.ndim == 1:
-        X = X.reshape(1, -1)
-
-        # 计算每列的最小值和最大值
-    min_vals = X.min(axis=0)
-    max_vals = X.max(axis=0)
-
-    # 缩放数据
-    X_scaled = (X - min_vals) * (ymax - ymin) / (max_vals - min_vals) + ymin
-
-    # 替换0除法的情形（如果某一列全为相同的值）
-    # np.place(X_scaled, (max_vals - min_vals) == 0, ymin)
-
-    return X_scaled, min_vals, max_vals
-
-
-file_path = "C:\\Users\\ligen\\Documents\\MATLAB\\wellintegrity\\10_套管-水泥环应力模型训练\\套管应力-水泥环应力模型训练数据集20231118 - 副本.xlsx"
+file_path = "套管应力-水泥环应力模型训练数据集20231118 - 副本.xlsx"
 df = pd.read_excel(file_path, sheet_name='2')
 print(df.shape)
 # 显示DataFrame的前几行来验证数据是否正确读取
 # print(df.head())
 
-df1 = df.iloc[1:150001, 0:11]
+# df1 = df.iloc[1:150001, 0:11]
+# df11 = df.iloc[200000:, 0:11]
+# print(df1.shape, df11.shape)
+# data = pd.concat([df1, df11], axis=0)
 
-df11 = df.iloc[200000:, 0:11]
-
-print(df1.shape, df11.shape)
-
-data = pd.concat([df1, df11], axis=0)
+data = df.iloc[1:, 0:11]
 
 print(data.shape)
 
@@ -97,6 +49,12 @@ n_test = nn - n_train - n_valid
 input_train = input.iloc[:, :n_train]
 output_train = output.iloc[:, :n_train]
 
+input_valid = input.iloc[:, n_train:n_train + n_valid]
+output_valid = output.iloc[:, n_train:n_train + n_valid]
+
+input_test = input.iloc[:, n_train + n_valid:]
+output_test = output.iloc[:, n_train + n_valid:]
+
 print(input_train.shape, output_train.shape)
 
 input_train_value = input_train.values
@@ -116,9 +74,9 @@ print(input_train_trans_value.shape)
 inputn, input_min_vals, input_max_vals = mapminmax(input_train_trans_value)
 print("Scaled inputn:")
 print(inputn)
-print("Original Min Values:")
+print("Input Original Min Values:")
 print(input_min_vals)
-print("Original Max Values:")
+print("Input Original Max Values:")
 print(input_max_vals)
 
 """
@@ -139,9 +97,9 @@ Original Max Values:
 outputn, output_min_vals, output_max_vals = mapminmax(output_train_trans_value)
 print("Scaled outputn:")
 print(outputn)
-print("Original Min Values:")
+print("Output Original Min Values:")
 print(output_min_vals)
-print("Original Max Values:")
+print("Output Original Max Values:")
 print(output_max_vals)
 
 model = Net()
@@ -174,8 +132,20 @@ for epoch in range(num_epochs):
     print(f'Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.4f}')
 
 print("训练完成")
+
 torch.save(model.state_dict(), 'model_parameters1.pth')
 torch.save(model, 'model1.pth')
+print("保存模型参数")
+# test
+
+input_data = np.array([30, 20, 30, 60, 2000, 0.1, 20000, 0.1])
+input_minmax, x_min, x_max = mapminmax(input_data, [30, 20, 30, 60, 2000, 0.1, 20000, 0.1], [75, 65, 90, 140, 10000, 0.3, 80000, 0.3])
+input_minmax = np.array([[np.float32(x) for x in subarr] for subarr in input_minmax], dtype=np.float32)
+t_data = torch.tensor(input_minmax, dtype=torch.float32)
+predictions = model(t_data)
+predictions_np = predictions.detach().numpy()
+print(predictions_np)
+
 
 
 
