@@ -5,7 +5,7 @@ from casingStress import Net
 from casingStress.mapminmax import mapminmax, reverse_mapminmax
 
 model = Net()
-model.load_state_dict(torch.load('model_parameters1.pth'))  # 假设模型保存在'model.pth'文件中
+model.load_state_dict(torch.load('model_parameters2.pth'))  # 假设模型保存在'model.pth'文件中
 # 加载整个模型
 # model = torch.load('model1.pth')
 
@@ -20,5 +20,5 @@ with torch.no_grad():  # 在预测时禁用梯度计算
     predictions = model(t_data)
     predictions_np = predictions.numpy()
 
-x_denorm = reverse_mapminmax(predictions_np, np.array([23.3619, -83.3194, -32.237]), np.array([1001.05, -8.35487, 14.6481]))
+x_denorm = reverse_mapminmax(predictions_np, np.array([23.3752, -81.1981, -32.4779]), np.array([925.402, -7.51187, 12.4097]))
 print(x_denorm)

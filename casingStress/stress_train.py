@@ -13,24 +13,16 @@ print(df.shape)
 # 显示DataFrame的前几行来验证数据是否正确读取
 # print(df.head())
 
-# df1 = df.iloc[1:150001, 0:11]
-# df11 = df.iloc[200000:, 0:11]
-# print(df1.shape, df11.shape)
-# data = pd.concat([df1, df11], axis=0)
-
 data = df.iloc[1:, 0:11]
+input_data = df.iloc[1:, 0:8]
+output_data1 = df.iloc[1:, 8:11].transpose()
+output_data2 = df.iloc[1:, 11:14].transpose()
+output_data3 = df.iloc[1:, 14:17].transpose()
+output_data4 = df.iloc[1:, 17:20].transpose()
+output_data5 = df.iloc[1:, 20:23].transpose()
+output_data6 = df.iloc[1:, 23:26].transpose()
 
 print(data.shape)
-
-# print(len(data1))
-idx = 0
-for row in data.values:
-    for ele in row:
-        print(ele, end=' ')
-    print()
-    idx += 1
-    if idx > 10:
-        break
 
 data = data.transpose()
 
@@ -38,9 +30,9 @@ nn = data.shape[1]
 
 line1 = 0  # 输入变量起始行数
 line2 = 8  # 输入变量终止行数
-n_line = line2 - line1   # 输入特征个数
 input = data.iloc[line1:line2, :]
 output = data.iloc[line2:, :]
+output = output_data2
 
 n_train = round(nn * 0.8)
 n_valid = round(nn * 0.1)
@@ -118,7 +110,6 @@ outputn = np.array([[np.float32(x) for x in subarr] for subarr in outputn], dtyp
 train_data = torch.tensor(inputn, dtype=torch.float32)
 train_labels = torch.tensor(outputn, dtype=torch.float32)
 
-
 num_epochs = 1000
 for epoch in range(num_epochs):
     # 前向传播
@@ -133,8 +124,8 @@ for epoch in range(num_epochs):
 
 print("训练完成")
 
-torch.save(model.state_dict(), 'model_parameters1.pth')
-torch.save(model, 'model1.pth')
+torch.save(model.state_dict(), 'model_parameters2.pth')
+torch.save(model, 'model2.pth')
 print("保存模型参数")
 # test
 
@@ -144,7 +135,7 @@ input_minmax = np.array([[np.float32(x) for x in subarr] for subarr in input_min
 t_data = torch.tensor(input_minmax, dtype=torch.float32)
 predictions = model(t_data)
 predictions_np = predictions.detach().numpy()
-print(predictions_np)
+print("第一行数据预测结果", predictions_np)
 
 
 
